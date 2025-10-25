@@ -1,0 +1,53 @@
+[build]
+  publish = "."
+  command = "echo 'No build needed'"
+
+[[redirects]]
+  from = "/check_session"
+  to = "https://your-render-app.onrender.com/check_session"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/login"
+  to = "https://your-render-app.onrender.com/login"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/register"
+  to = "https://your-render-app.onrender.com/register"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/logout"
+  to = "https://your-render-app.onrender.com/logout"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/remix"
+  to = "https://your-render-app.onrender.com/remix"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/update_subscription"
+  to = "https://your-render-app.onrender.com/update_subscription"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/contact"
+  to = "https://your-render-app.onrender.com/contact"
+  status = 200
+  force = true
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "https://nextlogicai.com"
+    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type"
+    Access-Control-Allow-Credentials = "true"
