@@ -4,43 +4,43 @@
 
 [[redirects]]
   from = "/check_session"
-  to = "https://your-render-app.onrender.com/check_session"
+  to = "https://back-thbr.onrender.com/check_session"
   status = 200
   force = true
 
 [[redirects]]
   from = "/login"
-  to = "https://your-render-app.onrender.com/login"
+  to = "https://back-thbr.onrender.com/login"
   status = 200
   force = true
 
 [[redirects]]
   from = "/register"
-  to = "https://your-render-app.onrender.com/register"
+  to = "https://back-thbr.onrender.com/register"
   status = 200
   force = true
 
 [[redirects]]
   from = "/logout"
-  to = "https://your-render-app.onrender.com/logout"
+  to = "https://back-thbr.onrender.com/logout"
   status = 200
   force = true
 
 [[redirects]]
   from = "/remix"
-  to = "https://your-render-app.onrender.com/remix"
+  to = "https://back-thbr.onrender.com/remix"
   status = 200
   force = true
 
 [[redirects]]
   from = "/update_subscription"
-  to = "https://your-render-app.onrender.com/update_subscription"
+  to = "https://back-thbr.onrender.com/update_subscription"
   status = 200
   force = true
 
 [[redirects]]
   from = "/contact"
-  to = "https://your-render-app.onrender.com/contact"
+  to = "https://back-thbr.onrender.com/contact"
   status = 200
   force = true
 
