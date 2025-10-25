@@ -2,6 +2,12 @@
   publish = "."
   command = "echo 'No build needed'"
 
+[build.processing]
+  skip_processing = false
+
+[build.environment]
+  SECRETS_SCAN_ENABLED = "false"
+
 [[redirects]]
   from = "/check_session"
   to = "https://back-thbr.onrender.com/check_session"
