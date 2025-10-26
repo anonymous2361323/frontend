@@ -1,5 +1,7 @@
 const API_BASE_URL = 'https://back-thbr.onrender.com';
 
+console.log('🚀 Script.js loaded');
+
 // ==================== AD REWARD SYSTEM ====================
 const AD_REWARD_SYSTEM = {
     adsWatchedKey: 'ads_watched_today',
@@ -48,7 +50,12 @@ const AD_REWARD_SYSTEM = {
     }
 };
 
-document.addEventListener('DOMContentLoaded', () => {
+console.log('✅ AD_REWARD_SYSTEM initialized');
+
+// Main initialization function
+function initApp() {
+    console.log('✅ Initializing app...');
+    
     let currentUsesLeft = 3;
     let isLoggedIn = false;
     let isPaid = false;
@@ -662,4 +669,12 @@ document.addEventListener('DOMContentLoaded', () => {
     markPremiumOptions();
     updateAdButton();
     document.getElementById('input-text').focus();
-});
+    console.log('✅ App initialized successfully!');
+}
+
+// Run immediately if DOM is ready, otherwise wait
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+} else {
+    initApp();
+}
