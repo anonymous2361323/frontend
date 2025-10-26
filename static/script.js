@@ -11,7 +11,6 @@ const AD_REWARD_SYSTEM = {
         const today = new Date().toDateString();
         const lastDate = localStorage.getItem(this.adsWatchedDateKey);
         
-        // Reset counter if it's a new day
         if (lastDate !== today) {
             localStorage.setItem(this.adsWatchedDateKey, today);
             localStorage.setItem(this.adsWatchedKey, '0');
@@ -54,26 +53,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let isLoggedIn = false;
     let isPaid = false;
 
-    // Define premium options that require subscription
+    // Premium options that require subscription
     const premiumOptions = [
-        'email',      // Professional Email
-        'ad',         // Ad Copy
-        'blog',       // Blog Post
-        'story',      // Story/Narrative
-        'smalltalk',  // Small Talk Starter
-        'salespitch', // Sales Pitch Opener
-        'thanks',     // Casual Thank-You Speech
-        'followup',   // Friendly Follow-Up
-        'apology',    // Quick Apology
-        'reminder',   // Urgent Reminder
-        'agenda',     // Meeting Agenda Teaser
-        'interview'   // Job Interview Pitch
+        'email', 'ad', 'blog', 'story', 'smalltalk', 'salespitch',
+        'thanks', 'followup', 'apology', 'reminder', 'agenda', 'interview'
     ];
 
     // ==================== GOOGLE ADSENSE FUNCTIONS ====================
     function initializeAdSense() {
-        // AdSense auto ads initialization (if you're using auto ads)
-        // The script tag is already in your HTML head section
         console.log('AdSense initialized');
     }
 
@@ -83,8 +70,6 @@ document.addEventListener('DOMContentLoaded', () => {
             createAdModal();
         }
         document.getElementById('ad-modal').classList.remove('hidden');
-        
-        // Load AdSense ad into the modal
         loadAdSenseAd();
     }
 
@@ -101,7 +86,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     
                     <div id="ad-container" class="min-h-[250px] bg-gray-100 rounded-xl flex items-center justify-center mb-4">
-                        <!-- AdSense ad will load here -->
                         <p class="text-gray-500">Loading advertisement...</p>
                     </div>
                     
@@ -122,7 +106,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function loadAdSenseAd() {
         const container = document.getElementById('ad-container');
         
-        // Your actual AdSense ad code
         container.innerHTML = `
             <ins class="adsbygoogle"
                  style="display:block; min-height:250px;"
@@ -132,7 +115,6 @@ document.addEventListener('DOMContentLoaded', () => {
                  data-full-width-responsive="true"></ins>
         `;
         
-        // Push ad to AdSense
         try {
             (adsbygoogle = window.adsbygoogle || []).push({});
         } catch (e) {
@@ -140,7 +122,6 @@ document.addEventListener('DOMContentLoaded', () => {
             container.innerHTML = '<p class="text-red-500">Ad failed to load. Please try again.</p>';
         }
         
-        // Enable the "Ad Watched" button after 10 seconds
         setTimeout(() => {
             document.getElementById('ad-complete-btn').disabled = false;
         }, 10000);
@@ -170,7 +151,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateAdButton() {
         let btn = document.getElementById('watch-ads-btn');
         if (!btn) {
-            // Create the button if it doesn't exist
             const container = document.querySelector('.mt-4.flex.justify-center.items-center.flex-wrap.gap-2');
             if (container) {
                 btn = document.createElement('button');
@@ -212,7 +192,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const remixBtn = document.getElementById('remix-btn');
         const upgradeBtn = document.getElementById('upgrade-btn');
         
-        // Check if user has ad-earned premium
         const hasAdPremium = AD_REWARD_SYSTEM.hasAdPremium();
         const effectivelyPremium = isPaid || hasAdPremium;
         
@@ -225,14 +204,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 counter.className = 'font-semibold bg-green-500/20 backdrop-blur-sm rounded-full px-6 py-2';
                 if (upgradeBtn) upgradeBtn.classList.add('hidden');
             } else {
-                counter.textContent = `${currentUsesLeft} free remixes left`;
-                counter.className = 'font-semibold bg-white/20 backdrop-blur-sm rounded-full px-6 py-2';
+                const usesText = currentUsesLeft === 1 ? 'remix' : 'remixes';
+                counter.textContent = `${currentUsesLeft} free ${usesText} left`;
+                counter.className = currentUsesLeft > 0 
+                    ? 'font-semibold bg-white/20 backdrop-blur-sm rounded-full px-6 py-2'
+                    : 'font-semibold bg-red-500/20 backdrop-blur-sm rounded-full px-6 py-2';
                 if (upgradeBtn) upgradeBtn.classList.remove('hidden');
             }
             remixBtn.disabled = false;
             remixBtn.textContent = '✨ Remix It Now';
             
-            // Show referral button when logged in
             addReferralButton();
             const referralBtn = document.getElementById('referral-btn');
             if (referralBtn) referralBtn.classList.remove('hidden');
@@ -245,7 +226,6 @@ document.addEventListener('DOMContentLoaded', () => {
             remixBtn.textContent = '🔐 Log in to remix!';
             if (upgradeBtn) upgradeBtn.classList.add('hidden');
             
-            // Hide referral button when logged out
             const referralBtn = document.getElementById('referral-btn');
             if (referralBtn) referralBtn.classList.add('hidden');
         }
@@ -259,7 +239,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('copy-btn').classList.add('hidden');
     }
 
-    // Mark premium options in the dropdown
     function markPremiumOptions() {
         const selectElement = document.getElementById('remix-type');
         const options = selectElement.querySelectorAll('option');
@@ -287,8 +266,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             isLoggedIn = data.logged_in;
             isPaid = data.is_paid || false;
+            
             if (data.uses_left !== undefined) {
-                currentUsesLeft = data.uses_left;
+                if (data.uses_left === 'unlimited') {
+                    currentUsesLeft = 999;
+                } else {
+                    currentUsesLeft = parseInt(data.uses_left) || 0;
+                }
             }
             updateUI();
         } catch (error) {
@@ -308,13 +292,10 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Check if user has premium (either paid or ad-earned)
         const hasAdPremium = AD_REWARD_SYSTEM.hasAdPremium();
         const effectivelyPremium = isPaid || hasAdPremium;
 
-        // Check if selected option is premium and user doesn't have premium access
         if (premiumOptions.includes(remixType) && !effectivelyPremium) {
-            // Show option: watch ads OR upgrade
             if (confirm('This is a premium feature. Watch ads to unlock 24hrs of premium, or subscribe now?')) {
                 document.getElementById('paywall').classList.remove('hidden');
             } else {
@@ -335,8 +316,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ 
-                    prompt: inputText, 
-                    'remix-type': remixType 
+                    prompt: inputText,
+                    'remix-type': remixType
                 })
             });
 
@@ -345,10 +326,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok && data.output) {
                 document.getElementById('output-text').textContent = data.output;
                 document.getElementById('copy-btn').classList.remove('hidden');
+                
                 if (data.uses_left !== undefined && data.uses_left !== 'unlimited') {
                     currentUsesLeft = data.uses_left;
                     if (!effectivelyPremium && currentUsesLeft <= 0) {
-                        // Offer ad watching or subscription
                         if (confirm('No free remixes left! Watch ads for 24hrs premium or subscribe?')) {
                             document.getElementById('paywall').classList.remove('hidden');
                         } else {
@@ -370,6 +351,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     } else {
                         showAdModal();
                     }
+                } else if (data.error && data.error.includes('log in')) {
+                    alert('Please log in to use this feature');
+                    document.getElementById('login-modal').classList.remove('hidden');
                 } else {
                     showError(data.error || 'Something went wrong!');
                 }
@@ -421,8 +405,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch(`${API_BASE_URL}/login`, {
                 method: 'POST',
                 credentials: 'include',
-                body: new URLSearchParams({
-                    ...Object.fromEntries(formData),
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: formData.get('username'),
+                    password: formData.get('password'),
                     'h-captcha-response': hcaptchaResponse
                 })
             });
@@ -431,8 +419,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (response.ok) {
                 isLoggedIn = true;
-                isPaid = data.is_paid;
-                currentUsesLeft = data.uses_left;
+                isPaid = data.is_paid || false;
+                
+                if (data.uses_left !== undefined) {
+                    if (data.uses_left === 'unlimited') {
+                        currentUsesLeft = 999;
+                    } else {
+                        currentUsesLeft = parseInt(data.uses_left) || 0;
+                    }
+                }
+                
                 document.getElementById('login-modal').classList.add('hidden');
                 updateUI();
                 alert('Login successful! 🎉');
@@ -450,7 +446,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('logout-btn').addEventListener('click', async () => {
         try {
             await fetch(`${API_BASE_URL}/logout`, {
-                method: 'GET',
+                method: 'POST',
                 credentials: 'include'
             });
             isLoggedIn = false;
@@ -460,6 +456,11 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Logged out successfully');
         } catch (error) {
             console.error('Logout error:', error);
+            alert('Logout failed, but clearing local session');
+            isLoggedIn = false;
+            isPaid = false;
+            currentUsesLeft = 3;
+            updateUI();
         }
     });
 
@@ -585,12 +586,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     window.showReferralModal = async function() {
-        // Create modal if it doesn't exist
         if (!document.getElementById('referral-modal')) {
             createReferralModal();
         }
 
-        // Fetch user's referral code from session
         try {
             const response = await fetch(`${API_BASE_URL}/check_session`, {
                 method: 'GET',
@@ -603,7 +602,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (data.logged_in && data.referral_code) {
                 const referralCode = data.referral_code;
-                const referralLink = `${window.location.origin}/register.html?ref=${referralCode}`;
+                const referralLink = `https://nextlogicai.com/register.html?ref=${referralCode}`;
                 
                 document.getElementById('referral-code-display').value = referralCode;
                 document.getElementById('referral-link-display').value = referralLink;
@@ -645,9 +644,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Add referral button to UI when logged in
     function addReferralButton() {
-        // Find the container with login/logout buttons
         const container = document.querySelector('.mt-4.flex.justify-center.items-center.flex-wrap.gap-2');
         if (container && !document.getElementById('referral-btn')) {
             const btn = document.createElement('button');
