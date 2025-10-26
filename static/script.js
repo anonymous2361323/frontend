@@ -231,6 +231,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             remixBtn.disabled = false;
             remixBtn.textContent = '✨ Remix It Now';
+            
+            // Show referral button when logged in
+            addReferralButton();
+            const referralBtn = document.getElementById('referral-btn');
+            if (referralBtn) referralBtn.classList.remove('hidden');
         } else {
             loginBtn.classList.remove('hidden');
             logoutBtn.classList.add('hidden');
@@ -239,6 +244,10 @@ document.addEventListener('DOMContentLoaded', () => {
             remixBtn.disabled = true;
             remixBtn.textContent = '🔐 Log in to remix!';
             if (upgradeBtn) upgradeBtn.classList.add('hidden');
+            
+            // Hide referral button when logged out
+            const referralBtn = document.getElementById('referral-btn');
+            if (referralBtn) referralBtn.classList.add('hidden');
         }
         
         updateAdButton();
@@ -521,6 +530,133 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error('PayPal error:', err);
             }
         }).render('#paypal-button-container');
+    }
+
+    // ==================== REFERRAL SHARING ====================
+    function createReferralModal() {
+        const modalHTML = `
+            <div id="referral-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+                <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
+                    <div class="text-center mb-6">
+                        <div class="w-16 h-16 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="text-3xl">🎁</span>
+                        </div>
+                        <h2 class="text-3xl font-black mb-2 text-gray-800">Share & Earn!</h2>
+                        <p class="text-gray-600">Invite friends and earn 30 days of Premium when they upgrade!</p>
+                    </div>
+                    
+                    <div class="bg-purple-50 rounded-xl p-4 mb-4">
+                        <p class="text-sm text-gray-600 mb-2">Your Referral Code:</p>
+                        <div class="flex items-center gap-2">
+                            <input type="text" id="referral-code-display" readonly class="flex-1 p-3 border-2 border-purple-300 rounded-lg font-bold text-purple-600 text-center text-lg bg-white">
+                            <button onclick="copyReferralCode()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded-lg font-semibold transition-all">
+                                📋 Copy
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-50 rounded-xl p-4 mb-4">
+                        <p class="text-sm text-gray-600 mb-2">Your Referral Link:</p>
+                        <div class="flex items-center gap-2">
+                            <input type="text" id="referral-link-display" readonly class="flex-1 p-2 border-2 border-blue-300 rounded-lg text-sm bg-white">
+                            <button onclick="copyReferralLink()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-all">
+                                🔗 Copy
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-yellow-400 to-orange-400 rounded-xl p-4 mb-4">
+                        <h3 class="font-bold text-gray-900 mb-2">🎯 How it works:</h3>
+                        <ul class="text-sm text-gray-900 space-y-1">
+                            <li>1️⃣ Share your link with friends</li>
+                            <li>2️⃣ They sign up using your code</li>
+                            <li>3️⃣ When they upgrade to Premium...</li>
+                            <li>4️⃣ You get 30 days FREE! 🎉</li>
+                        </ul>
+                    </div>
+
+                    <button onclick="closeReferralModal()" class="w-full bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 rounded-xl transition-all">
+                        Close
+                    </button>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+    }
+
+    window.showReferralModal = async function() {
+        // Create modal if it doesn't exist
+        if (!document.getElementById('referral-modal')) {
+            createReferralModal();
+        }
+
+        // Fetch user's referral code from session
+        try {
+            const response = await fetch(`${API_BASE_URL}/check_session`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await response.json();
+            
+            if (data.logged_in && data.referral_code) {
+                const referralCode = data.referral_code;
+                const referralLink = `${window.location.origin}/register.html?ref=${referralCode}`;
+                
+                document.getElementById('referral-code-display').value = referralCode;
+                document.getElementById('referral-link-display').value = referralLink;
+                document.getElementById('referral-modal').classList.remove('hidden');
+            } else {
+                alert('Please log in to view your referral code');
+            }
+        } catch (error) {
+            console.error('Error fetching referral code:', error);
+            alert('Failed to load referral code');
+        }
+    }
+
+    window.closeReferralModal = function() {
+        document.getElementById('referral-modal').classList.add('hidden');
+    }
+
+    window.copyReferralCode = async function() {
+        const codeInput = document.getElementById('referral-code-display');
+        try {
+            await navigator.clipboard.writeText(codeInput.value);
+            alert('✅ Referral code copied!');
+        } catch (err) {
+            codeInput.select();
+            document.execCommand('copy');
+            alert('✅ Referral code copied!');
+        }
+    }
+
+    window.copyReferralLink = async function() {
+        const linkInput = document.getElementById('referral-link-display');
+        try {
+            await navigator.clipboard.writeText(linkInput.value);
+            alert('✅ Referral link copied!');
+        } catch (err) {
+            linkInput.select();
+            document.execCommand('copy');
+            alert('✅ Referral link copied!');
+        }
+    }
+
+    // Add referral button to UI when logged in
+    function addReferralButton() {
+        // Find the container with login/logout buttons
+        const container = document.querySelector('.mt-4.flex.justify-center.items-center.flex-wrap.gap-2');
+        if (container && !document.getElementById('referral-btn')) {
+            const btn = document.createElement('button');
+            btn.id = 'referral-btn';
+            btn.className = 'bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white backdrop-blur-sm rounded-full px-6 py-2 font-semibold transition-all';
+            btn.innerHTML = '🎁 Share & Earn';
+            btn.addEventListener('click', showReferralModal);
+            container.appendChild(btn);
+        }
     }
 
     // ==================== INITIALIZE ====================
