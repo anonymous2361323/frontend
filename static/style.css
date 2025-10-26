@@ -10,6 +10,9 @@ body {
     line-height: 1.6;
     color: #333;
 }
+.hidden {
+    display: none;
+}
 
 /* Smooth Scrolling */
 html {

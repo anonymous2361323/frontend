@@ -1,11 +1,85 @@
 const API_BASE_URL = 'https://back-thbr.onrender.com';
 
+function trackEvent(eventName, parameters = {}) {
+    if (typeof gtag !== 'undefined') {
+        gtag('event', eventName, parameters);
+    }
+}
+
+function trackPageView(pageName) {
+    trackEvent('page_view', {
+        page_title: pageName,
+        page_location: window.location.href
+    });
+}
+
+function trackRegistration() {
+    trackEvent('sign_up', {
+        method: 'email'
+    });
+}
+
+function trackLogin() {
+    trackEvent('login', {
+        method: 'email'
+    });
+}
+
+function trackRemix(remixType, isPremium) {
+    trackEvent('remix_content', {
+        content_type: remixType,
+        is_premium: isPremium,
+        value: isPremium ? 0 : 1
+    });
+}
+
+function trackPaywallShown(trigger) {
+    trackEvent('view_paywall', {
+        trigger: trigger
+    });
+}
+
+function trackSubscription(subscriptionID) {
+    trackEvent('purchase', {
+        transaction_id: subscriptionID,
+        value: 4.99,
+        currency: 'USD',
+        items: [{
+            item_id: 'premium_monthly',
+            item_name: 'Premium Subscription',
+            price: 4.99,
+            quantity: 1
+        }]
+    });
+}
+
+function trackButtonClick(buttonName) {
+    trackEvent('button_click', {
+        button_name: buttonName
+    });
+}
+
+function trackContactForm() {
+    trackEvent('contact_form_submit', {
+        form_name: 'main_contact'
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     let currentUsesLeft = 3;
     let isLoggedIn = false;
     let isPaid = false;
 
-    // Utility Functions
+    const premiumOptions = [
+        'email',
+        'ad',
+        'blog',
+        'story',
+        'smalltalk',
+        'salespitch',
+        'thanks'
+    ];
+
     function updateUI() {
         const counter = document.getElementById('uses-counter');
         const loginBtn = document.getElementById('login-btn');
@@ -40,7 +114,20 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('copy-btn').classList.add('hidden');
     }
 
-    // Session Check
+    function markPremiumOptions() {
+        const selectElement = document.getElementById('remix-type');
+        const options = selectElement.querySelectorAll('option');
+        
+        options.forEach(option => {
+            if (premiumOptions.includes(option.value)) {
+                if (!option.textContent.includes('🔒')) {
+                    option.textContent = '🔒 ' + option.textContent + ' (Premium)';
+                    option.classList.add('premium-option');
+                }
+            }
+        });
+    }
+
     async function checkSession() {
         try {
             const response = await fetch(`${API_BASE_URL}/check_session`, {
@@ -63,14 +150,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Remix Button
+    document.getElementById('register-btn').addEventListener('click', () => {
+        trackButtonClick('register');
+    });
+
     document.getElementById('remix-btn').addEventListener('click', async () => {
+        trackButtonClick('remix');
         const remixBtn = document.getElementById('remix-btn');
         const inputText = document.getElementById('input-text').value.trim();
         const remixType = document.getElementById('remix-type').value;
         
         if (!inputText) {
             showError('Please enter some text to remix!');
+            return;
+        }
+
+        if (premiumOptions.includes(remixType) && !isPaid) {
+            trackPaywallShown('premium_feature');
+            document.getElementById('paywall').classList.remove('hidden');
             return;
         }
 
@@ -94,17 +191,23 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (response.ok && data.output) {
+                trackRemix(remixType, isPaid);
                 document.getElementById('output-text').textContent = data.output;
                 document.getElementById('copy-btn').classList.remove('hidden');
                 if (data.uses_left !== undefined && data.uses_left !== 'unlimited') {
                     currentUsesLeft = data.uses_left;
                     if (!isPaid && currentUsesLeft <= 0) {
+                        trackPaywallShown('no_uses_left');
                         document.getElementById('paywall').classList.remove('hidden');
                     }
                 }
                 checkSession();
             } else {
-                if (data.error && data.error.includes('No free remixes')) {
+                if (data.error && (data.error.includes('Premium') || data.error.includes('subscription'))) {
+                    trackPaywallShown('premium_feature');
+                    document.getElementById('paywall').classList.remove('hidden');
+                } else if (data.error && data.error.includes('No free remixes')) {
+                    trackPaywallShown('no_uses_left');
                     document.getElementById('paywall').classList.remove('hidden');
                 } else {
                     showError(data.error || 'Something went wrong!');
@@ -119,8 +222,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Copy Button
     document.getElementById('copy-btn').addEventListener('click', async () => {
+        trackButtonClick('copy');
         const text = document.getElementById('output-text').textContent;
         try {
             await navigator.clipboard.writeText(text);
@@ -137,17 +240,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Login Modal
     document.getElementById('login-btn').addEventListener('click', () => {
+        trackButtonClick('login');
         document.getElementById('login-modal').classList.remove('hidden');
         document.getElementById('login-error').classList.add('hidden');
     });
 
     document.getElementById('close-login-btn').addEventListener('click', () => {
+        trackButtonClick('close_login');
         document.getElementById('login-modal').classList.add('hidden');
     });
 
-    // Login Form
     document.getElementById('login-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
@@ -164,8 +267,10 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             const data = await response.json();
+            console.log('Login response:', data); // Debug log
 
             if (response.ok) {
+                trackLogin();
                 isLoggedIn = true;
                 isPaid = data.is_paid;
                 currentUsesLeft = data.uses_left;
@@ -173,17 +278,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateUI();
                 alert('Login successful! 🎉');
             } else {
-                document.getElementById('login-error').textContent = data.error;
+                console.error('Login error:', data.error); // Debug log
+                document.getElementById('login-error').textContent = data.error || 'Login failed';
                 document.getElementById('login-error').classList.remove('hidden');
             }
         } catch (error) {
-            document.getElementById('login-error').textContent = 'Login failed. Please try again.';
+            console.error('Fetch error:', error); // Debug log
+            document.getElementById('login-error').textContent = 'Failed to connect to server';
             document.getElementById('login-error').classList.remove('hidden');
         }
     });
 
-    // Logout
     document.getElementById('logout-btn').addEventListener('click', async () => {
+        trackButtonClick('logout');
         try {
             await fetch(`${API_BASE_URL}/logout`, {
                 method: 'GET',
@@ -199,7 +306,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Contact Form
     document.getElementById('contact-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
@@ -214,6 +320,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
             if (response.ok) {
+                trackContactForm();
                 status.textContent = '✅ Message sent successfully!';
                 status.className = 'text-center mt-4 text-green-400';
                 e.target.reset();
@@ -228,12 +335,11 @@ document.addEventListener('DOMContentLoaded', () => {
         status.classList.remove('hidden');
     });
 
-    // Paywall Modal
     document.getElementById('close-paywall-btn').addEventListener('click', () => {
+        trackButtonClick('close_paywall');
         document.getElementById('paywall').classList.add('hidden');
     });
 
-    // PayPal Button
     if (typeof paypal !== 'undefined') {
         paypal.Buttons({
             createSubscription: function(data, actions) {
@@ -242,6 +348,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             },
             onApprove: function(data, actions) {
+                trackSubscription(data.subscriptionID);
                 return fetch(`${API_BASE_URL}/update_subscription`, {
                     method: 'POST',
                     credentials: 'include',
@@ -260,7 +367,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }).render('#paypal-button-container');
     }
 
-    // Initialize
     checkSession();
+    markPremiumOptions();
     document.getElementById('input-text').focus();
+    trackPageView('NextLogicAI Home');
 });
