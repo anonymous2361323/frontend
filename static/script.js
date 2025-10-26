@@ -25,11 +25,10 @@ function trackLogin() {
     });
 }
 
-function trackRemix(remixType, isPremium) {
+function trackRemix(remixType, userTier) {
     trackEvent('remix_content', {
         content_type: remixType,
-        is_premium: isPremium,
-        value: isPremium ? 0 : 1
+        user_tier: userTier
     });
 }
 
@@ -66,45 +65,80 @@ function trackContactForm() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    let currentUsesLeft = 3;
+    // User state
+    let userTier = 'guest'; // 'guest', 'free', 'premium'
+    let guestUsesLeft = 3;
     let isLoggedIn = false;
     let isPaid = false;
 
+    // Premium-only features
     const premiumOptions = [
         'email',
         'ad',
         'blog',
         'story',
         'smalltalk',
+        'interview',
         'salespitch',
         'thanks'
     ];
 
+    // Free account features (same as guest, just unlimited)
+    const freeAccountOptions = [
+        'tweet',
+        'linkedin',
+        'instagram',
+        'youtube',
+        'press',
+        'casual'
+    ];
+
+    function getUserTier() {
+        if (isPaid) return 'premium';
+        if (isLoggedIn) return 'free';
+        return 'guest';
+    }
+
     function updateUI() {
         const counter = document.getElementById('uses-counter');
         const loginBtn = document.getElementById('login-btn');
+        const registerBtn = document.getElementById('register-btn');
         const logoutBtn = document.getElementById('logout-btn');
+        const upgradeBtn = document.getElementById('upgrade-btn');
         const remixBtn = document.getElementById('remix-btn');
         
-        if (isLoggedIn) {
+        userTier = getUserTier();
+
+        if (isPaid) {
+            // Premium user
             loginBtn.classList.add('hidden');
+            registerBtn.classList.add('hidden');
             logoutBtn.classList.remove('hidden');
-            if (isPaid) {
-                counter.textContent = 'Unlimited remixes! ✨';
-                counter.className = 'font-semibold bg-green-500/20 backdrop-blur-sm rounded-full px-6 py-2';
-            } else {
-                counter.textContent = `${currentUsesLeft} free remixes left`;
-                counter.className = 'font-semibold bg-white/20 backdrop-blur-sm rounded-full px-6 py-2';
-            }
+            upgradeBtn.classList.add('hidden');
+            counter.textContent = '⭐ Premium - Unlimited remixes!';
+            counter.className = 'font-semibold bg-gradient-to-r from-yellow-400 to-orange-500 backdrop-blur-sm rounded-full px-6 py-2';
+            remixBtn.disabled = false;
+            remixBtn.textContent = '✨ Remix It Now';
+        } else if (isLoggedIn) {
+            // Free account user
+            loginBtn.classList.add('hidden');
+            registerBtn.classList.add('hidden');
+            logoutBtn.classList.remove('hidden');
+            upgradeBtn.classList.remove('hidden');
+            counter.textContent = '🎉 Free Account - Unlimited basic remixes!';
+            counter.className = 'font-semibold bg-green-500/80 backdrop-blur-sm rounded-full px-6 py-2';
             remixBtn.disabled = false;
             remixBtn.textContent = '✨ Remix It Now';
         } else {
+            // Guest user
             loginBtn.classList.remove('hidden');
+            registerBtn.classList.remove('hidden');
             logoutBtn.classList.add('hidden');
-            counter.textContent = '3 free remixes available';
+            upgradeBtn.classList.add('hidden');
+            counter.textContent = `🆓 Guest - ${guestUsesLeft} remixes left`;
             counter.className = 'font-semibold bg-white/20 backdrop-blur-sm rounded-full px-6 py-2';
-            remixBtn.disabled = true;
-            remixBtn.textContent = '🔐 Log in to remix!';
+            remixBtn.disabled = false;
+            remixBtn.textContent = '✨ Remix It Now';
         }
     }
 
@@ -114,18 +148,14 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('copy-btn').classList.add('hidden');
     }
 
-    function markPremiumOptions() {
-        const selectElement = document.getElementById('remix-type');
-        const options = selectElement.querySelectorAll('option');
-        
-        options.forEach(option => {
-            if (premiumOptions.includes(option.value)) {
-                if (!option.textContent.includes('🔒')) {
-                    option.textContent = '🔒 ' + option.textContent + ' (Premium)';
-                    option.classList.add('premium-option');
-                }
-            }
-        });
+    function getGuestUsesLeft() {
+        const stored = localStorage.getItem('guestUsesLeft');
+        return stored ? parseInt(stored) : 3;
+    }
+
+    function setGuestUsesLeft(uses) {
+        localStorage.setItem('guestUsesLeft', uses.toString());
+        guestUsesLeft = uses;
     }
 
     async function checkSession() {
@@ -140,18 +170,56 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             isLoggedIn = data.logged_in;
             isPaid = data.is_paid || false;
-            if (data.uses_left !== undefined) {
-                currentUsesLeft = data.uses_left;
+            
+            // Only use guest uses if not logged in
+            if (!isLoggedIn) {
+                guestUsesLeft = getGuestUsesLeft();
             }
+            
             updateUI();
         } catch (error) {
             console.error('Session check failed:', error);
+            guestUsesLeft = getGuestUsesLeft();
             updateUI();
         }
     }
 
-    document.getElementById('register-btn').addEventListener('click', () => {
+    function canAccessFeature(remixType) {
+        if (isPaid) {
+            return { canAccess: true, reason: null };
+        }
+        
+        if (premiumOptions.includes(remixType)) {
+            return { canAccess: false, reason: 'premium_required' };
+        }
+        
+        if (!isLoggedIn) {
+            if (guestUsesLeft <= 0) {
+                return { canAccess: false, reason: 'guest_limit' };
+            }
+            // Guests can only use basic features
+            if (!freeAccountOptions.includes(remixType)) {
+                return { canAccess: false, reason: 'account_required' };
+            }
+        }
+        
+        return { canAccess: true, reason: null };
+    }
+
+    document.getElementById('register-btn')?.addEventListener('click', () => {
         trackButtonClick('register');
+    });
+
+    document.getElementById('upgrade-btn')?.addEventListener('click', () => {
+        trackButtonClick('upgrade_button');
+        trackPaywallShown('upgrade_button');
+        document.getElementById('paywall').classList.remove('hidden');
+    });
+
+    document.getElementById('upgrade-cta-btn')?.addEventListener('click', () => {
+        trackButtonClick('upgrade_cta');
+        trackPaywallShown('upgrade_cta');
+        document.getElementById('paywall').classList.remove('hidden');
     });
 
     document.getElementById('remix-btn').addEventListener('click', async () => {
@@ -165,9 +233,19 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        if (premiumOptions.includes(remixType) && !isPaid) {
-            trackPaywallShown('premium_feature');
-            document.getElementById('paywall').classList.remove('hidden');
+        // Check feature access
+        const accessCheck = canAccessFeature(remixType);
+        if (!accessCheck.canAccess) {
+            if (accessCheck.reason === 'premium_required') {
+                trackPaywallShown('premium_feature');
+                document.getElementById('paywall').classList.remove('hidden');
+            } else if (accessCheck.reason === 'guest_limit') {
+                trackPaywallShown('guest_limit');
+                document.getElementById('guest-limit-modal').classList.remove('hidden');
+            } else if (accessCheck.reason === 'account_required') {
+                trackPaywallShown('account_required');
+                document.getElementById('guest-limit-modal').classList.remove('hidden');
+            }
             return;
         }
 
@@ -184,31 +262,39 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 body: JSON.stringify({ 
                     prompt: inputText, 
-                    'remix-type': remixType 
+                    'remix-type': remixType,
+                    is_guest: !isLoggedIn
                 })
             });
 
             const data = await response.json();
 
             if (response.ok && data.output) {
-                trackRemix(remixType, isPaid);
+                trackRemix(remixType, userTier);
                 document.getElementById('output-text').textContent = data.output;
                 document.getElementById('copy-btn').classList.remove('hidden');
-                if (data.uses_left !== undefined && data.uses_left !== 'unlimited') {
-                    currentUsesLeft = data.uses_left;
-                    if (!isPaid && currentUsesLeft <= 0) {
-                        trackPaywallShown('no_uses_left');
-                        document.getElementById('paywall').classList.remove('hidden');
+                
+                // Update guest uses if not logged in
+                if (!isLoggedIn) {
+                    guestUsesLeft = Math.max(0, guestUsesLeft - 1);
+                    setGuestUsesLeft(guestUsesLeft);
+                    
+                    if (guestUsesLeft <= 0) {
+                        trackPaywallShown('guest_limit_reached');
+                        setTimeout(() => {
+                            document.getElementById('guest-limit-modal').classList.remove('hidden');
+                        }, 1000);
                     }
                 }
+                
                 checkSession();
             } else {
-                if (data.error && (data.error.includes('Premium') || data.error.includes('subscription'))) {
-                    trackPaywallShown('premium_feature');
+                if (data.requiresPremium) {
+                    trackPaywallShown('premium_required_backend');
                     document.getElementById('paywall').classList.remove('hidden');
-                } else if (data.error && data.error.includes('No free remixes')) {
-                    trackPaywallShown('no_uses_left');
-                    document.getElementById('paywall').classList.remove('hidden');
+                } else if (data.error && data.error.includes('log in')) {
+                    trackPaywallShown('login_required');
+                    document.getElementById('guest-limit-modal').classList.remove('hidden');
                 } else {
                     showError(data.error || 'Something went wrong!');
                 }
@@ -267,23 +353,20 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             const data = await response.json();
-            console.log('Login response:', data); // Debug log
 
             if (response.ok) {
                 trackLogin();
                 isLoggedIn = true;
                 isPaid = data.is_paid;
-                currentUsesLeft = data.uses_left;
                 document.getElementById('login-modal').classList.add('hidden');
                 updateUI();
                 alert('Login successful! 🎉');
             } else {
-                console.error('Login error:', data.error); // Debug log
                 document.getElementById('login-error').textContent = data.error || 'Login failed';
                 document.getElementById('login-error').classList.remove('hidden');
             }
         } catch (error) {
-            console.error('Fetch error:', error); // Debug log
+            console.error('Login error:', error);
             document.getElementById('login-error').textContent = 'Failed to connect to server';
             document.getElementById('login-error').classList.remove('hidden');
         }
@@ -298,7 +381,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             isLoggedIn = false;
             isPaid = false;
-            currentUsesLeft = 3;
+            guestUsesLeft = getGuestUsesLeft();
             updateUI();
             alert('Logged out successfully');
         } catch (error) {
@@ -340,6 +423,17 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('paywall').classList.add('hidden');
     });
 
+    document.getElementById('close-guest-limit-btn')?.addEventListener('click', () => {
+        trackButtonClick('close_guest_limit');
+        document.getElementById('guest-limit-modal').classList.add('hidden');
+    });
+
+    document.getElementById('show-premium-from-guest')?.addEventListener('click', () => {
+        trackButtonClick('show_premium_from_guest');
+        document.getElementById('guest-limit-modal').classList.add('hidden');
+        document.getElementById('paywall').classList.remove('hidden');
+    });
+
     if (typeof paypal !== 'undefined') {
         paypal.Buttons({
             createSubscription: function(data, actions) {
@@ -368,7 +462,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     checkSession();
-    markPremiumOptions();
     document.getElementById('input-text').focus();
     trackPageView('NextLogicAI Home');
 });
