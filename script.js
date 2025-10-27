@@ -1,4 +1,3 @@
-alert('Script loaded on mobile!');
 const API_BASE_URL = 'https://back-thbr.onrender.com';
 
 console.log('🚀 Script.js loaded');
