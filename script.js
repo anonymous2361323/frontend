@@ -2,7 +2,6 @@ const API_BASE_URL = 'https://back-thbr.onrender.com';
 
 console.log('🚀 Script.js loaded');
 
-// ==================== AD REWARD SYSTEM ====================
 const AD_REWARD_SYSTEM = {
     adsWatchedKey: 'ads_watched_today',
     adsWatchedDateKey: 'ads_watched_date',
@@ -52,21 +51,22 @@ const AD_REWARD_SYSTEM = {
 
 console.log('✅ AD_REWARD_SYSTEM initialized');
 
-// Main initialization function
+
 function initApp() {
     console.log('✅ Initializing app...');
     
     let currentUsesLeft = 3;
     let isLoggedIn = false;
     let isPaid = false;
+    let guestUsesLeft = 3;
 
-    // Premium options that require subscription
+
     const premiumOptions = [
         'email', 'ad', 'blog', 'story', 'smalltalk', 'salespitch',
         'thanks', 'followup', 'apology', 'reminder', 'agenda', 'interview'
     ];
 
-    // ==================== GOOGLE ADSENSE FUNCTIONS ====================
+
     function initializeAdSense() {
         console.log('AdSense initialized');
     }
@@ -191,7 +191,6 @@ function initApp() {
         }
     }
 
-    // ==================== UTILITY FUNCTIONS ====================
     function updateUI() {
         const counter = document.getElementById('uses-counter');
         const loginBtn = document.getElementById('login-btn');
@@ -224,18 +223,20 @@ function initApp() {
             addReferralButton();
             const referralBtn = document.getElementById('referral-btn');
             if (referralBtn) referralBtn.classList.remove('hidden');
-                } else {
-                loginBtn.classList.remove('hidden');
-                logoutBtn.classList.add('hidden');
-                counter.textContent = '3 free remixes available';
-                counter.className = 'font-semibold bg-white/20 backdrop-blur-sm rounded-full px-6 py-2';
-                remixBtn.disabled = false;  // ✅ ENABLE FOR GUESTS!
-                remixBtn.textContent = '✨ Remix It Now';  // ✅ CHANGE TEXT
-                if (upgradeBtn) upgradeBtn.classList.add('hidden');
-                
-                const referralBtn = document.getElementById('referral-btn');
-                if (referralBtn) referralBtn.classList.add('hidden');
-            }
+        } else {
+            loginBtn.classList.remove('hidden');
+            logoutBtn.classList.add('hidden');
+            counter.textContent = `${guestUsesLeft} free remixes available`;
+            counter.className = guestUsesLeft > 0 
+                ? 'font-semibold bg-white/20 backdrop-blur-sm rounded-full px-6 py-2'
+                : 'font-semibold bg-red-500/20 backdrop-blur-sm rounded-full px-6 py-2';
+            remixBtn.disabled = false;  // ✅ ENABLE FOR GUESTS!
+            remixBtn.textContent = '✨ Remix It Now';
+            if (upgradeBtn) upgradeBtn.classList.add('hidden');
+            
+            const referralBtn = document.getElementById('referral-btn');
+            if (referralBtn) referralBtn.classList.add('hidden');
+        }
         
         updateAdButton();
     }
@@ -260,32 +261,7 @@ function initApp() {
         });
     }
 
-    // ==================== SESSION CHECK ====================
-async function checkSession() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/check_session`, {
-            method: 'GET',
-            credentials: 'include',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        if (!response.ok && response.status === 502) {
-            // Backend is sleeping, retry after delay
-            console.log('Backend is waking up...');
-            await new Promise(resolve => setTimeout(resolve, 3000));
-            return checkSession(); // Retry
-        }
-        
-        const data = await response.json();
-        // ... rest of your code
-    } catch (error) {
-        console.error('Session check failed:', error);
-        updateUI();
-    }
-}  
-  async function checkSession() {
+    async function checkSession() {
         try {
             const response = await fetch(`${API_BASE_URL}/check_session`, {
                 method: 'GET',
@@ -294,9 +270,16 @@ async function checkSession() {
                     'Content-Type': 'application/json'
                 }
             });
+            
+            if (!response.ok && response.status === 502) {
+                console.log('Backend is waking up...');
+                await new Promise(resolve => setTimeout(resolve, 3000));
+                return checkSession();
+            }
+            
             const data = await response.json();
             isLoggedIn = data.logged_in;
-            isPaid = data.is_paid || false;
+            isPaid = data.is_premium || data.is_paid || false;
             
             if (data.uses_left !== undefined) {
                 if (data.uses_left === 'unlimited') {
@@ -312,7 +295,7 @@ async function checkSession() {
         }
     }
 
-    // ==================== REMIX BUTTON ====================
+
     document.getElementById('remix-btn').addEventListener('click', async () => {
         const remixBtn = document.getElementById('remix-btn');
         const inputText = document.getElementById('input-text').value.trim();
@@ -325,6 +308,18 @@ async function checkSession() {
 
         const hasAdPremium = AD_REWARD_SYSTEM.hasAdPremium();
         const effectivelyPremium = isPaid || hasAdPremium;
+
+
+        if (!isLoggedIn) {
+            if (guestUsesLeft <= 0) {
+                if (confirm('No free remixes left! Sign up to get 3 more free remixes, or watch ads for premium?')) {
+                    document.getElementById('login-modal').classList.remove('hidden');
+                } else {
+                    showAdModal();
+                }
+                return;
+            }
+        }
 
         if (premiumOptions.includes(remixType) && !effectivelyPremium) {
             if (confirm('This is a premium feature. Watch ads to unlock 24hrs of premium, or subscribe now?')) {
@@ -358,17 +353,28 @@ async function checkSession() {
                 document.getElementById('output-text').textContent = data.output;
                 document.getElementById('copy-btn').classList.remove('hidden');
                 
-                if (data.uses_left !== undefined && data.uses_left !== 'unlimited') {
-                    currentUsesLeft = data.uses_left;
-                    if (!effectivelyPremium && currentUsesLeft <= 0) {
-                        if (confirm('No free remixes left! Watch ads for 24hrs premium or subscribe?')) {
-                            document.getElementById('paywall').classList.remove('hidden');
-                        } else {
-                            showAdModal();
+         
+                if (!isLoggedIn) {
+                    guestUsesLeft--;
+                    const counter = document.getElementById('uses-counter');
+                    counter.textContent = `${guestUsesLeft} free remixes ${guestUsesLeft === 0 ? 'left - sign up for 3 more!' : 'available'}`;
+                    if (guestUsesLeft === 0) {
+                        counter.className = 'font-semibold bg-red-500/20 backdrop-blur-sm rounded-full px-6 py-2';
+                    }
+                } else {
+                    // Logged in user
+                    if (data.uses_left !== undefined && data.uses_left !== 'unlimited') {
+                        currentUsesLeft = data.uses_left;
+                        if (!effectivelyPremium && currentUsesLeft <= 0) {
+                            if (confirm('No free remixes left! Watch ads for 24hrs premium or subscribe?')) {
+                                document.getElementById('paywall').classList.remove('hidden');
+                            } else {
+                                showAdModal();
+                            }
                         }
                     }
+                    checkSession();
                 }
-                checkSession();
             } else {
                 if (data.error && (data.error.includes('Premium') || data.error.includes('subscription'))) {
                     if (confirm('Premium feature required. Watch ads or subscribe?')) {
@@ -398,7 +404,7 @@ async function checkSession() {
         }
     });
 
-    // ==================== COPY BUTTON ====================
+  
     document.getElementById('copy-btn').addEventListener('click', async () => {
         const text = document.getElementById('output-text').textContent;
         try {
@@ -416,7 +422,7 @@ async function checkSession() {
         }
     });
 
-    // ==================== LOGIN MODAL ====================
+
     document.getElementById('login-btn').addEventListener('click', () => {
         document.getElementById('login-modal').classList.remove('hidden');
         document.getElementById('login-error').classList.add('hidden');
@@ -426,7 +432,7 @@ async function checkSession() {
         document.getElementById('login-modal').classList.add('hidden');
     });
 
-    // ==================== LOGIN FORM ====================
+
     document.getElementById('login-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
@@ -450,7 +456,7 @@ async function checkSession() {
 
             if (response.ok) {
                 isLoggedIn = true;
-                isPaid = data.is_paid || false;
+                isPaid = data.is_paid || data.is_premium || false;
                 
                 if (data.uses_left !== undefined) {
                     if (data.uses_left === 'unlimited') {
@@ -473,7 +479,7 @@ async function checkSession() {
         }
     });
 
-    // ==================== LOGOUT ====================
+ 
     document.getElementById('logout-btn').addEventListener('click', async () => {
         try {
             await fetch(`${API_BASE_URL}/logout`, {
@@ -483,6 +489,7 @@ async function checkSession() {
             isLoggedIn = false;
             isPaid = false;
             currentUsesLeft = 3;
+            guestUsesLeft = 3; // ✅ Reset guest uses
             updateUI();
             alert('Logged out successfully');
         } catch (error) {
@@ -491,11 +498,12 @@ async function checkSession() {
             isLoggedIn = false;
             isPaid = false;
             currentUsesLeft = 3;
+            guestUsesLeft = 3;
             updateUI();
         }
     });
 
-    // ==================== UPGRADE BUTTON ====================
+
     const upgradeBtn = document.getElementById('upgrade-btn');
     if (upgradeBtn) {
         upgradeBtn.addEventListener('click', () => {
@@ -503,7 +511,7 @@ async function checkSession() {
         });
     }
 
-    // ==================== CONTACT FORM ====================
+
     document.getElementById('contact-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
@@ -532,12 +540,12 @@ async function checkSession() {
         status.classList.remove('hidden');
     });
 
-    // ==================== PAYWALL MODAL ====================
+
     document.getElementById('close-paywall-btn').addEventListener('click', () => {
         document.getElementById('paywall').classList.add('hidden');
     });
 
-    // ==================== PAYPAL BUTTON ====================
+
     if (typeof paypal !== 'undefined') {
         paypal.Buttons({
             createSubscription: function(data, actions) {
@@ -564,7 +572,7 @@ async function checkSession() {
         }).render('#paypal-button-container');
     }
 
-    // ==================== REFERRAL SHARING ====================
+
     function createReferralModal() {
         const modalHTML = `
             <div id="referral-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
@@ -687,7 +695,7 @@ async function checkSession() {
         }
     }
 
-    // ==================== INITIALIZE ====================
+
     initializeAdSense();
     checkSession();
     markPremiumOptions();
@@ -696,7 +704,7 @@ async function checkSession() {
     console.log('✅ App initialized successfully!');
 }
 
-// Run immediately if DOM is ready, otherwise wait
+
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initApp);
 } else {
