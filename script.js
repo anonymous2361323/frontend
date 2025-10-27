@@ -224,18 +224,18 @@ function initApp() {
             addReferralButton();
             const referralBtn = document.getElementById('referral-btn');
             if (referralBtn) referralBtn.classList.remove('hidden');
-        } else {
-            loginBtn.classList.remove('hidden');
-            logoutBtn.classList.add('hidden');
-            counter.textContent = '3 free remixes available';
-            counter.className = 'font-semibold bg-white/20 backdrop-blur-sm rounded-full px-6 py-2';
-            remixBtn.disabled = true;
-            remixBtn.textContent = '🔐 Log in to remix!';
-            if (upgradeBtn) upgradeBtn.classList.add('hidden');
-            
-            const referralBtn = document.getElementById('referral-btn');
-            if (referralBtn) referralBtn.classList.add('hidden');
-        }
+                } else {
+                loginBtn.classList.remove('hidden');
+                logoutBtn.classList.add('hidden');
+                counter.textContent = '3 free remixes available';
+                counter.className = 'font-semibold bg-white/20 backdrop-blur-sm rounded-full px-6 py-2';
+                remixBtn.disabled = false;  // ✅ ENABLE FOR GUESTS!
+                remixBtn.textContent = '✨ Remix It Now';  // ✅ CHANGE TEXT
+                if (upgradeBtn) upgradeBtn.classList.add('hidden');
+                
+                const referralBtn = document.getElementById('referral-btn');
+                if (referralBtn) referralBtn.classList.add('hidden');
+            }
         
         updateAdButton();
     }
@@ -261,7 +261,31 @@ function initApp() {
     }
 
     // ==================== SESSION CHECK ====================
-    async function checkSession() {
+async function checkSession() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/check_session`, {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok && response.status === 502) {
+            // Backend is sleeping, retry after delay
+            console.log('Backend is waking up...');
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            return checkSession(); // Retry
+        }
+        
+        const data = await response.json();
+        // ... rest of your code
+    } catch (error) {
+        console.error('Session check failed:', error);
+        updateUI();
+    }
+}  
+  async function checkSession() {
         try {
             const response = await fetch(`${API_BASE_URL}/check_session`, {
                 method: 'GET',
