@@ -14,7 +14,11 @@ body {
     display: none;
 }
 
-/* Smooth Scrolling */
+body.teacher-mode {
+  background: linear-gradient(135deg, #2e8bff20, #4caf5020);
+}
+
+
 html {
     scroll-behavior: smooth;
 }
@@ -50,6 +54,16 @@ button:active:not(:disabled) {
 button:disabled {
     cursor: not-allowed;
     opacity: 0.6;
+}
+
+body.student-mode[data-tool="linkedin"] {
+  background: linear-gradient(135deg, #0077b520, #ffffff10);
+}
+body.student-mode[data-tool="tweet"] {
+  background: linear-gradient(135deg, #1da1f220, #ffffff10);
+}
+body.student-mode[data-tool="email"] {
+  background: linear-gradient(135deg, #fbbc0520, #ffffff10);
 }
 
 /* Input Focus Styles */

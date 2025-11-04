@@ -1,324 +1,250 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-S1ZCX07Z5Q"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-S1ZCX07Z5Q');
+  </script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NextLogicAI Classroom | Responsible AI Learning Platform</title>
+  <meta name="description" content="Learn responsible AI use through hands-on practice. Teachers manage access, students complete courses before using tools.">
+  <meta name="keywords" content="AI education, responsible AI, student tools, teacher dashboard, AI classroom">
+  <link rel="canonical" href="https://www.nextlogicai.com/" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="NextLogicAI Classroom | AI Education Platform" />
+  <meta property="og:description" content="Teaching responsible AI use through limitation-based learning." />
+  <meta property="og:image" content="https://res.cloudinary.com/dvovudqsd/image/upload/v1760056331/og-logo.png" />
+  <meta property="og:url" content="https://www.nextlogicai.com/" />
+
+  <!-- AdSense for non-school users -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8389319752765958" crossorigin="anonymous"></script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://js.hcaptcha.com/1/api.js" defer></script>
+
+  <style>
+    /* Tool-specific background colors */
+    .tool-bg-tweet { background: linear-gradient(135deg, #38bdf8, #0ea5e9); }
+    .tool-bg-linkedin { background: linear-gradient(135deg, #0077b5, #004182); }
+    .tool-bg-email { background: linear-gradient(135deg, #fb923c, #f97316); }
+    .tool-bg-blog { background: linear-gradient(135deg, #a78bfa, #7e22ce); }
+    .tool-bg-summary { background: linear-gradient(135deg, #4ade80, #22c55e); }
+    .tool-bg-default { background: linear-gradient(135deg, #8b5cf6, #ec4899); }
     
-    <title>NextLogicAI - AI Content Rewriter | Transform Any Text Instantly</title>
-    <meta name="description" content="Transform your content instantly with NextLogicAI. Convert blog posts to tweets, emails to LinkedIn posts, and more with our powerful AI content rewriter. Get 3 free remixes!">
-    <meta name="keywords" content="AI content rewriter, text transformer, content remix, AI writing tool, blog to tweet, email to social media">
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://www.nextlogicai.com/">
+    /* Role-based overlays */
+    body.admin-mode::before {
+      content: '👩‍🏫 Teacher Mode';
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: rgba(34, 197, 94, 0.9);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      z-index: 1000;
+    }
     
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://www.nextlogicai.com/">
-    <meta property="og:title" content="NextLogicAI - AI Content Rewriter">
-    <meta property="og:description" content="Transform your content instantly with AI. Get 3 free remixes!">
-    <meta property="og:image" content="https://res.cloudinary.com/dvovudqsd/image/upload/v1760056331/og-logo.png">
-
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://www.nextlogicai.com/">
-    <meta property="twitter:title" content="NextLogicAI - AI Content Rewriter">
-    <meta property="twitter:description" content="Transform your content instantly with AI. Get 3 free remixes!">
-    <meta property="twitter:image" content="https://res.cloudinary.com/dvovudqsd/image/upload/v1760056331/og-logo.png">
-
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8389319752765958"
-     crossorigin="anonymous"></script>
-
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-S1ZCX07Z5Q"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-S1ZCX07Z5Q');
-    </script>
-
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://js.hcaptcha.com/1/api.js" defer></script>
-    <script src="https://www.paypal.com/sdk/js?client-id=AcCI1T0FD_zDywH_4kcv-vPBh9r7eYQ-4i7Z-Q8I3xqPZFCy2mTvApT4q8LyZK1wYH1SU9OOCgk0_YjN&vault=true&intent=subscription" data-sdk-integration-source="button-factory"></script>
+    body.student-mode::before {
+      content: '🎓 Student Mode';
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: rgba(59, 130, 246, 0.9);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      z-index: 1000;
+    }
+    
+    .transition-bg { transition: background 0.5s ease; }
+    
+    /* Hide ads for school users */
+    body.admin-mode .ad-container,
+    body.student-mode .ad-container {
+      display: none !important;
+    }
+  </style>
 </head>
-<body class="bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 min-h-screen text-white font-sans">
-    <!-- Header -->
-    <header class="container mx-auto px-4 py-4 mt-4">
-        <div class="flex flex-col items-center justify-center gap-2 text-center mt-8">
-            <div class="flex flex-col items-center gap-1">
-                <img src="https://res.cloudinary.com/dvovudqsd/image/upload/v1760056331/og-logo.png" 
-                    alt="NextLogicAI Logo" 
-                    class="h-60 w-auto">
-            </div>
+<body id="page-body" class="tool-bg-default transition-bg min-h-screen flex flex-col text-white font-sans">
+
+  <!-- Header -->
+  <header class="py-6 border-b border-white/20 backdrop-blur-sm bg-black/10">
+    <div class="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
+      <div class="flex items-center gap-3">
+        <img src="https://res.cloudinary.com/dvovudqsd/image/upload/v1760056331/og-logo.png" alt="NextLogicAI Logo" class="h-14">
+        <div>
+          <h1 class="text-3xl font-black">NextLogicAI</h1>
+          <p class="text-xs opacity-80">Responsible AI Learning</p>
         </div>
-    </header>
-
-    <main class="container mx-auto px-4 py-12 max-w-5xl">
-        <div class="text-center mb-12">     
-            <h2 class="text-5xl font-black mb-4">Transform Your Content with AI</h2>
-            <p class="text-xl mb-2">Turn blogs into tweets, emails into LinkedIn posts, and more!</p>
-            <p class="text-lg opacity-90 mb-4">
-                <span class="inline-block bg-yellow-400 text-gray-900 px-4 py-1 rounded-full font-bold mt-2">
-                    Get 3 free remixes - no credit card required
-                </span>
-            </p>
-            <nav>
-                <a href="#how-it-works" class="inline-block bg-pink-600/80 hover:bg-pink-600 backdrop-blur-sm rounded-full px-8 py-3 font-bold text-lg transition-all transform hover:scale-105 border-2 border-black shadow-lg mt-2">
-                    How It Works
-                </a>
-            </nav>
-        </div>
-        <div class="bg-white/10 backdrop-blur-md rounded-3xl p-8 shadow-2xl mb-8">
-            <div class="flex flex-col items-center justify-center mb-6">           
-                <h1 class="text-center text-2xl md:text-3xl font-black leading-tight">
-                    NextLogic AI
-                </h1>
-                <p class="text-center text-xs tracking-widest mt-1">AI CONTENT CREATOR</p>
-            </div>
-            
-            <div class="grid md:grid-cols-2 gap-6 mb-6">
-                <div>
-                    <label class="block text-lg font-bold mb-2">Your Content</label>
-                    <textarea id="input-text" placeholder="Paste your text here... (blog post, email, article, etc.)" class="w-full h-64 p-4 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:border-purple-500 focus:outline-none resize-none"></textarea>
-                </div>
-                <div>
-                    <label class="block text-lg font-bold mb-2">AI Remix Output</label>
-                    <div id="output-text" class="w-full h-64 p-4 rounded-xl border-2 border-gray-300 bg-white text-gray-900 overflow-y-auto">
-                        Your remixed content will appear here...
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex justify-center mb-4">
-                <select id="remix-type" class="w-64 p-3 rounded-xl border-2 border-white/20 bg-white/10 text-black text-center font-semibold focus:border-black/40 focus:outline-none">
-                    <optgroup label="Free Options">
-                        <option value="tweet">Twitter Thread</option>
-                        <option value="linkedin">LinkedIn Post</option>
-                        <option value="instagram">Instagram Caption</option>
-                        <option value="facebook">Facebook Post</option>
-                        <option value="reddit">Reddit Post</option>
-                        <option value="youtube">YouTube Description</option>
-                        <option value="tiktok">TikTok Caption</option>
-                        <option value="pinterest">Pinterest Description</option>
-                        <option value="summary">Quick Summary</option>
-                        <option value="bullets">Bullet Points</option>
-                        <option value="expand">Expand Text</option>
-                    </optgroup>
-                    <optgroup label="Premium Options">
-                        <option value="email">Professional Email</option>
-                        <option value="ad">Ad Copy</option>
-                        <option value="blog">Blog Post</option>
-                        <option value="story">Story/Narrative</option>
-                        <option value="smalltalk">Small Talk Starter</option>
-                        <option value="salespitch">Sales Pitch Opener</option>
-                        <option value="thanks">Casual Thank-You Speech</option>
-                        <option value="followup">Friendly Follow-Up</option>
-                        <option value="apology">Quick Apology</option>
-                        <option value="reminder">Urgent Reminder</option>
-                        <option value="agenda">Meeting Agenda Teaser</option>
-                        <option value="interview">Job Interview Pitch</option>
-                    </optgroup>
-                </select>
-            </div>
-
-            <div class="flex justify-center items-center gap-4 mb-4">
-                <button id="remix-btn" disabled class="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-gray-900 font-black py-3 px-8 rounded-xl shadow-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
-                    <span class="text-xl">🔒</span> Log in to remix!
-                </button>
-                <button id="copy-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition-all hidden">
-                    Copy Text
-                </button>
-            </div>
-
-            <div class="mt-4 flex justify-center items-center flex-wrap gap-2">
-                <p id="uses-counter" class="font-semibold bg-white/20 backdrop-blur-sm rounded-full px-6 py-2">3 free remixes available</p>
-                <button id="login-btn" class="bg-white/20 backdrop-blur-sm rounded-full px-6 py-2 font-semibold hover:bg-white/30 transition-all">Log In</button>
-                <button id="logout-btn" class="bg-white/20 backdrop-blur-sm rounded-full px-6 py-2 font-semibold hover:bg-white/30 transition-all hidden">Log Out</button>
-                <button id="upgrade-btn" class="bg-yellow-500 hover:bg-yellow-600 backdrop-blur-sm rounded-full px-6 py-2 font-semibold transition-all hidden">
-                    <span class="font-black">★</span> Upgrade to Premium
-                </button>
-            </div>
-        </div>
-        <section id="how-it-works" class="mb-12">
-            <h2 class="text-3xl font-black text-center mb-8">How It Works</h2>
-            <div class="grid md:grid-cols-3 gap-6">
-                <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-center border-2 border-white/20">
-                    <div class="text-5xl mb-4 font-black text-yellow-300">1</div>
-                    <h3 class="text-xl font-bold mb-2">Paste Your Content</h3>
-                    <p class="text-white/80">Drop in any text - blog post, email, article, or notes</p>
-                </div>
-                <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-center border-2 border-white/20">
-                    <div class="text-5xl mb-4 font-black text-pink-300">2</div>
-                    <h3 class="text-xl font-bold mb-2">Choose Format</h3>
-                    <p class="text-white/80">Select your target format - tweet, LinkedIn post, email, etc.</p>
-                </div>
-                <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-center border-2 border-white/20">
-                    <div class="text-5xl mb-4 font-black text-purple-300">3</div>
-                    <h3 class="text-xl font-bold mb-2">Get AI Magic</h3>
-                    <p class="text-white/80">Receive perfectly formatted content in seconds!</p>
-                </div>
-            </div>
-        </section>
-        <section class="bg-gradient-to-r from-yellow-400 to-orange-400 rounded-3xl p-8 text-gray-900 text-center mb-12">
-            <h2 class="text-3xl font-black mb-4">
-                <span class="text-4xl">★</span> Upgrade to Premium
-            </h2>
-            <div class="grid md:grid-cols-2 gap-4 mb-6">
-                <div class="bg-white/20 rounded-xl p-4">
-                    <h3 class="font-bold mb-2 text-xl">Free Plan</h3>
-                    <ul class="text-left space-y-1">
-                        <li><span class="text-green-600 font-bold">✓</span> 3 free remixes per account</li>
-                        <li><span class="text-green-600 font-bold">✓</span> 11 content formats</li>
-                        <li><span class="text-green-600 font-bold">✓</span> Basic social media posts</li>
-                    </ul>
-                </div>
-                <div class="bg-white/20 rounded-xl p-4 border-4 border-gray-900">
-                    <h3 class="font-bold mb-2 text-xl">Premium - $4.99/month</h3>
-                    <ul class="text-left space-y-1">
-                        <li><span class="text-purple-600 font-bold">★</span> Unlimited remixes</li>
-                        <li><span class="text-purple-600 font-bold">★</span> All 18 content formats</li>
-                        <li><span class="text-purple-600 font-bold">★</span> Professional emails & ad copy</li>
-                        <li><span class="text-purple-600 font-bold">★</span> SEO blog post generation</li>
-                        <li><span class="text-purple-600 font-bold">★</span> Priority processing</li>
-                    </ul>
-                </div>
-            </div>
-            <button onclick="document.getElementById('paywall').classList.remove('hidden')" class="bg-gray-900 hover:bg-gray-800 text-white font-black py-3 px-8 rounded-xl shadow-lg transition-all transform hover:scale-105">
-                Upgrade Now
-            </button>
-        </section>
-        <section class="bg-white/10 backdrop-blur-sm rounded-3xl p-8 mb-12">
-            <h2 class="text-3xl font-black text-center mb-6">Frequently Asked Questions</h2>
-            <div class="max-w-2xl mx-auto space-y-3">
-                
-                <details class="bg-white/5 rounded-xl overflow-hidden group">
-                    <summary class="cursor-pointer p-4 font-bold text-lg flex justify-between items-center hover:bg-white/10 transition-all">
-                        <span><span class="text-pink-400">→</span> How many free remixes do I get?</span>
-                        <span class="text-2xl group-open:rotate-180 transition-transform">▼</span>
-                    </summary>
-                    <div class="p-4 pt-0 text-white/80">
-                        You get 3 free remixes when you sign up - no credit card required!
-                    </div>
-                </details>
-
-                <details class="bg-white/5 rounded-xl overflow-hidden group">
-                    <summary class="cursor-pointer p-4 font-bold text-lg flex justify-between items-center hover:bg-white/10 transition-all">
-                        <span><span class="text-yellow-400">→</span> What payment methods do you accept?</span>
-                        <span class="text-2xl group-open:rotate-180 transition-transform">▼</span>
-                    </summary>
-                    <div class="p-4 pt-0 text-white/80">
-                        We accept all major credit cards and PayPal through our secure payment processor.
-                    </div>
-                </details>
-
-                <details class="bg-white/5 rounded-xl overflow-hidden group">
-                    <summary class="cursor-pointer p-4 font-bold text-lg flex justify-between items-center hover:bg-white/10 transition-all">
-                        <span><span class="text-purple-400">→</span> Can I cancel anytime?</span>
-                        <span class="text-2xl group-open:rotate-180 transition-transform">▼</span>
-                    </summary>
-                    <div class="p-4 pt-0 text-white/80">
-                        Yes! You can cancel your premium subscription at any time with no penalties or fees.
-                    </div>
-                </details>
-
-                <details class="bg-white/5 rounded-xl overflow-hidden group">
-                    <summary class="cursor-pointer p-4 font-bold text-lg flex justify-between items-center hover:bg-white/10 transition-all">
-                        <span><span class="text-orange-400">→</span> What's included in Premium?</span>
-                        <span class="text-2xl group-open:rotate-180 transition-transform">▼</span>
-                    </summary>
-                    <div class="p-4 pt-0 text-white/80">
-                        Premium gets you unlimited remixes, all 18 content formats (including professional emails and ad copy), and priority processing.
-                    </div>
-                </details>
-
-                <details class="bg-white/5 rounded-xl overflow-hidden group">
-                    <summary class="cursor-pointer p-4 font-bold text-lg flex justify-between items-center hover:bg-white/10 transition-all">
-                        <span><span class="text-cyan-400">→</span> What AI powers NextLogicAI?</span>
-                        <span class="text-2xl group-open:rotate-180 transition-transform">▼</span>
-                    </summary>
-                    <div class="p-4 pt-0 text-white/80">
-                        We use OpenAI's advanced GPT models to deliver high-quality, context-aware content transformations.
-                    </div>
-                </details>
-
-                <details class="bg-white/5 rounded-xl overflow-hidden group">
-                    <summary class="cursor-pointer p-4 font-bold text-lg flex justify-between items-center hover:bg-white/10 transition-all">
-                        <span><span class="text-green-400">→</span> Is my content secure?</span>
-                        <span class="text-2xl group-open:rotate-180 transition-transform">▼</span>
-                    </summary>
-                    <div class="p-4 pt-0 text-white/80">
-                        Yes! We don't store your content after processing. Your data is processed securely and never shared with third parties.
-                    </div>
-                </details>
-
-            </div>
-        </section>
-        <section class="bg-white/10 backdrop-blur-sm rounded-3xl p-8 mb-12">
-            <h2 class="text-3xl font-black text-center mb-6">Contact Us</h2>
-            <form id="contact-form" class="max-w-2xl mx-auto space-y-4">
-                <input type="text" name="name" placeholder="Your Name" required class="w-full p-3 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-white/50 focus:border-white/40 focus:outline-none">
-                <input type="email" name="email" placeholder="Your Email" required class="w-full p-3 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-white/50 focus:border-white/40 focus:outline-none">
-                <textarea name="message" placeholder="Your Message" rows="4" required class="w-full p-3 rounded-xl border-2 border-white/20 bg-white/10 text-white placeholder-white/50 focus:border-white/40 focus:outline-none resize-none"></textarea>
-                <button type="submit" class="w-full bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white font-bold py-3 rounded-xl shadow-lg transition-all">
-                    Send Message
-                </button>
-            </form>
-            <p id="contact-status" class="text-center mt-4 hidden"></p>
-        </section>
-    </main>
-    <footer class="container mx-auto px-4 py-8 text-center text-white/60">
-        <p>&copy; 2025 NextLogicAI. All rights reserved.</p>
-        <p class="mt-2">Made with passion for content creators everywhere</p>
-    </footer>
-    <div id="login-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
-        <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-3xl font-black text-gray-800">Log In</h2>
-                <button id="close-login-btn" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
-            </div>
-            <form id="login-form" class="space-y-4">
-                <input type="text" name="username" placeholder="Username" required class="w-full p-3 border-2 border-gray-300 rounded-xl focus:border-purple-500 focus:outline-none text-gray-700">
-                <input type="password" name="password" placeholder="Password" required class="w-full p-3 border-2 border-gray-300 rounded-xl focus:border-purple-500 focus:outline-none text-gray-700">
-                <div class="h-captcha" data-sitekey="fbfa5e8c-ac2e-4db6-ac26-469ee2280f6a"></div>
-                <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl transition-all">
-                    Log In
-                </button>
-            </form>
-            <p id="login-error" class="text-red-500 text-center mt-4 hidden"></p>
-            <p class="text-gray-600 text-center mt-4">Don't have an account? <a href="/register.html" class="text-purple-600 hover:underline font-bold">Sign up free</a></p>
-        </div>
+      </div>
+      
+      <div class="flex gap-3 flex-wrap justify-center">
+        <button id="login-btn" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg font-semibold transition-all">Log In</button>
+        <button id="logout-btn" class="hidden bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg font-semibold transition-all">Log Out</button>
+        <button id="upgrade-btn" class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold px-4 py-2 rounded-lg transition-all">⭐ Upgrade</button>
+      </div>
     </div>
-    <div id="paywall" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
-        <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-3xl font-black text-gray-800">Upgrade to Premium</h2>
-                <button id="close-paywall-btn" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
-            </div>
-            <div class="mb-6">
-                <div class="bg-gradient-to-r from-yellow-400 to-orange-400 rounded-2xl p-6 text-gray-900 mb-4">
-                    <h3 class="text-2xl font-black mb-4">Premium Features</h3>
-                    <ul class="space-y-2">
-                        <li><span class="text-xl">★</span> <strong>Unlimited remixes</strong></li>
-                        <li><span class="text-xl">★</span> All 18 content formats</li>
-                        <li><span class="text-xl">★</span> Professional emails</li>
-                        <li><span class="text-xl">★</span> Ad copy generation</li>
-                        <li><span class="text-xl">★</span> SEO blog posts</li>
-                        <li><span class="text-xl">★</span> Priority processing</li>
-                    </ul>
-                    <p class="text-3xl font-black mt-4">Just $4.99/month</p>
-                </div>
-                <div id="paypal-button-container"></div>
-            </div>
-        </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 container mx-auto px-6 py-10">
+    
+    <!-- Hero Section -->
+    <div class="text-center mb-12">
+      <h2 class="text-5xl font-black mb-4">AI Learning Through Limitation</h2>
+      <p class="text-xl text-white/90 mb-2">Learn responsible AI use by working with focused, scope-limited tools</p>
+      <p class="text-sm text-white/70 italic">Teachers assign → Students complete course → Tools unlock</p>
     </div>
 
-    <script src="script.js"></script>
+    <!-- Course Gate Notice (for students who haven't completed) -->
+    <div id="course-gate" class="hidden bg-yellow-400/20 border-2 border-yellow-400 rounded-xl p-6 mb-8">
+      <h3 class="text-2xl font-bold mb-2">🎓 Complete the Course First</h3>
+      <p class="mb-4">Before using AI tools, you must complete the Responsible AI Fundamentals course.</p>
+      <a href="/course.html" class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold px-6 py-3 rounded-lg inline-block">Go to Course →</a>
+    </div>
 
-    <style>
-        details summary::-webkit-details-marker {
-            display: none;
-        }
-        
-        details[open] summary {
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            margin-bottom: 1rem;
-        }
-    </style>
+    <!-- Tool Selector -->
+    <div class="flex justify-center mb-8">
+      <div class="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20">
+        <label class="block text-sm font-bold mb-2 text-center">Select AI Tool:</label>
+        <select id="tool-select" class="w-80 p-3 rounded-lg border-2 border-white/30 bg-white/20 text-white font-semibold focus:outline-none focus:border-white/60">
+          <option value="default">Choose a tool...</option>
+          <optgroup label="✅ Free - Scope-Limited Tools">
+            <option value="tweet">🐦 Twitter Thread (Brevity Practice)</option>
+            <option value="linkedin">💼 LinkedIn Post (Professional Tone)</option>
+            <option value="summary">📝 Summarizer (Information Distillation)</option>
+          </optgroup>
+          <optgroup label="⭐ Premium - Advanced Tools">
+            <option value="email">📧 Professional Email</option>
+            <option value="blog">📰 Blog Post Generator</option>
+          </optgroup>
+        </select>
+        <p class="text-xs text-center mt-2 opacity-70">Each tool teaches a different AI limitation principle</p>
+      </div>
+    </div>
+
+    <!-- Work Area -->
+    <div class="grid md:grid-cols-2 gap-6 mb-6">
+      <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
+        <label class="block font-bold mb-3 text-lg flex items-center gap-2">
+          <span>📝</span> Your Input
+        </label>
+        <textarea id="input-text" placeholder="Write or paste your content here..." class="w-full h-72 p-4 rounded-lg border-2 border-white/30 bg-white/10 text-white placeholder-white/50 focus:outline-none focus:border-white/60 resize-none"></textarea>
+        <p class="text-xs mt-2 opacity-70">💡 Tip: Start with rough ideas. AI helps refine, not replace.</p>
+      </div>
+      
+      <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
+        <label class="block font-bold mb-3 text-lg flex items-center gap-2">
+          <span>✨</span> AI Output
+        </label>
+        <div id="output-text" class="w-full h-72 p-4 rounded-lg border-2 border-white/30 bg-white/5 text-white/90 overflow-y-auto">
+          Your AI-enhanced content will appear here...
+        </div>
+        <button id="copy-btn" class="hidden mt-3 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 rounded-lg transition-all">
+          📋 Copy to Clipboard
+        </button>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex justify-center gap-4 mb-8">
+      <button id="generate-btn" class="bg-white hover:bg-gray-100 text-gray-900 font-bold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
+        ✨ Generate
+      </button>
+    </div>
+
+    <!-- Ad Space (only for non-school users) -->
+    <div class="ad-container my-8">
+      <div class="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10 text-center">
+        <p class="text-xs opacity-60 mb-2">Advertisement</p>
+        <ins class="adsbygoogle"
+             style="display:block; min-height:90px;"
+             data-ad-client="ca-pub-8389319752765958"
+             data-ad-slot="auto"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+          if (!document.body.classList.contains('admin-mode') && 
+              !document.body.classList.contains('student-mode')) {
+            (adsbygoogle = window.adsbygoogle || []).push({});
+          }
+        </script>
+      </div>
+    </div>
+
+    <!-- Access Code Section (for students joining class) -->
+    <div id="access-section" class="hidden mt-10 text-center bg-white/10 backdrop-blur-md rounded-xl p-8 border border-white/20">
+      <h3 class="text-2xl font-bold mb-4">🎓 Join Your Class</h3>
+      <p class="mb-4 opacity-90">Enter the access code provided by your teacher:</p>
+      <div class="flex justify-center gap-2 max-w-md mx-auto">
+        <input type="text" id="access-code-input" placeholder="ABC123" class="flex-1 p-3 rounded-lg bg-white/20 border-2 border-white/30 text-center font-mono text-lg focus:outline-none focus:border-white/60" maxlength="20">
+        <button id="join-class-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold px-6 py-3 rounded-lg transition-all">
+          Join →
+        </button>
+      </div>
+    </div>
+
+    <!-- Learning Principles Section -->
+    <section class="mt-16 grid md:grid-cols-4 gap-6">
+      <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+        <div class="text-4xl mb-3">🎯</div>
+        <h3 class="text-lg font-bold mb-2">Scope Limitation</h3>
+        <p class="text-sm opacity-80">Tools that do one thing well teach focused problem-solving</p>
+      </div>
+      
+      <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+        <div class="text-4xl mb-3">⏱️</div>
+        <h3 class="text-lg font-bold mb-2">Time Limitation</h3>
+        <p class="text-sm opacity-80">AI for drafts, humans for finals. Learn when to hand off</p>
+      </div>
+      
+      <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+        <div class="text-4xl mb-3">🤔</div>
+        <h3 class="text-lg font-bold mb-2">Decision Limitation</h3>
+        <p class="text-sm opacity-80">AI suggests, humans decide. Practice judgment</p>
+      </div>
+      
+      <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+        <div class="text-4xl mb-3">🧠</div>
+        <h3 class="text-lg font-bold mb-2">Context Limitation</h3>
+        <p class="text-sm opacity-80">AI handles process, humans provide wisdom</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="py-8 border-t border-white/20 text-center text-white/70 text-sm backdrop-blur-sm bg-black/10">
+    <p class="mb-2">&copy; 2025 NextLogicAI Classroom</p>
+    <p class="text-xs opacity-60">Teaching responsible AI through thoughtful limitation</p>
+  </footer>
+
+  <!-- Login Modal -->
+  <div id="login-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
+      <h2 class="text-3xl font-black mb-6 text-gray-800">Log In</h2>
+      <form id="login-form" class="space-y-4">
+        <input type="text" name="username" placeholder="Username" required class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-700">
+        <input type="password" name="password" placeholder="Password" required class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-700">
+        <input type="text" name="access_code" placeholder="Access Code (if student)" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-gray-700">
+        <div class="h-captcha" data-sitekey="fbfa5e8c-ac2e-4db6-ac26-469ee2280f6a"></div>
+        <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-lg transition-all">
+          Log In
+        </button>
+        <button type="button" id="close-login-btn" class="w-full text-gray-600 hover:text-gray-800 py-2">Cancel</button>
+      </form>
+      <p class="text-gray-600 text-center mt-4">Don't have an account? <a href="/register.html" class="text-purple-600 hover:underline font-bold">Sign up</a></p>
+    </div>
+  </div>
+
+  <script src="educational-script.js"></script>
 </body>
 </html>
